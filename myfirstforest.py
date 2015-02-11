@@ -110,6 +110,6 @@ predictions_file.close()
 
 print 'Calculating Accuracy...'
 randomforest_success_rate = check_accuracy("data/all_titanic.csv", output)
-print randomforest_success_rate
+print 'Accuracy:', randomforest_success_rate
 
 print 'Done.'
