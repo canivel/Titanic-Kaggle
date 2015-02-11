@@ -5,6 +5,7 @@ Revised: 15 April 2014
 please see packages.python.org/milk/randomforests.html for more
 
 """
+import math
 import pandas as pd
 import numpy as np
 import csv as csv
@@ -21,7 +22,8 @@ def check_accuracy(file_name, predictions):
         total_count += 1
         if predictions[row_index] == row['Survived']:
             correct_count += 1
-    return correct_count/total_count
+    return correct_count / total_count
+
 # end helper functions
 
 
@@ -112,4 +114,8 @@ print 'Calculating Accuracy...'
 randomforest_success_rate = check_accuracy("data/all_titanic.csv", output)
 print 'Accuracy:', randomforest_success_rate
 
-print 'Done'
+print 'Calculating Feature Importances...'
+imp = sorted(zip(test_df.columns, forest.feature_importances_), key=lambda tup: tup[1], reverse=True)
+print "Most Important Features:" + str(imp)
+
+print 'Done.'
