@@ -112,4 +112,4 @@ print 'Calculating Accuracy...'
 randomforest_success_rate = check_accuracy("data/all_titanic.csv", output)
 print 'Accuracy:', randomforest_success_rate
 
-print 'Done.'
+print 'Done'
