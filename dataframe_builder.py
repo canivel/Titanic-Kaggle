@@ -86,6 +86,9 @@ def processFamily():
     df_train['FamilySize'] = df_train['SibSp'] + df_train['Parch']
     df_test['FamilySize'] = df_test['SibSp'] + df_test['Parch']
 
+    df_train['FamilySize*Gender'] = df_train['FamilySize'] * df_train['Gender']
+    df_test['FamilySize*Gender'] = df_test['FamilySize'] * df_test['Gender']
+
 def processFare():
     df_train['Fare_Per_Person']=df_train['Fare']/(df_train['FamilySize']+1)
     df_test['Fare_Per_Person'] = df_test['Fare']/(df_test['FamilySize']+1)
@@ -144,21 +147,60 @@ def processTicket():
 
 def processAge():
     #predic ages train
-    age_df_train = df_train[['Age', 'Fare_Per_Person', 'Gender', 'FamilySize', 'Title_N', 'Pclass', 'Deck_N', 'TicketNumber', 'Gender*TicketNumberStart']]
+    age_df_train = df_train[['Age', 'Fare_Per_Person', 'Gender', 'FamilySize*Gender', 'FamilySize', 'Title_N',
+                             'Pclass', 'Deck_N', 'TicketNumber', 'Gender*TicketNumberStart', 'SibSp',
+                             'Parch', 'Port_of_Embarkation']]
+
+    age_df_test = df_test[['Age', 'Fare_Per_Person', 'Gender', 'FamilySize*Gender', 'FamilySize', 'Title_N',
+                           'Pclass', 'Deck_N', 'TicketNumber', 'Gender*TicketNumberStart', 'SibSp',
+                           'Parch', 'Port_of_Embarkation']]
+
     age_features_train = age_df_train.loc[(age_df_train['Age'].notnull())].values[:, 1::]
     age_labels_train = age_df_train.loc[(age_df_train['Age'].notnull())].values[:, 0]
+
+    # from sklearn import cross_validation
+    # from sklearn.ensemble import GradientBoostingRegressor
+    # from sklearn.metrics import mean_squared_error
+    # features_train, features_test, labels_train, labels_test = cross_validation.train_test_split(age_features_train, age_labels_train, test_size=0.3, random_state=42)
+    #
+    # # from sklearn.preprocessing import StandardScaler
+    # # scaler = StandardScaler()
+    # # features_train = scaler.fit_transform(features_train)
+    # # features_test = scaler.fit_transform(features_test)
+    #
+    # clf = RandomForestRegressor(n_estimators=1000, n_jobs=-1,
+    #                             max_features=5,
+    #                             max_depth=None,
+    #                             max_leaf_nodes=32,
+    #                             min_samples_split=1,
+    #                             min_samples_leaf =1)
+    # clf = clf.fit(features_train, labels_train)
+    # pred = clf.predict(features_test)
+    #
+    # #print clf.oob_score_
+    # print 100.0 * (clf.feature_importances_ / clf.feature_importances_.max())
+    # print clf.score(features_test, labels_test)
+    # print mean_squared_error(labels_test, pred)
+    #
+    # exit()
+
+    # from sklearn.linear_model import LinearRegression
+    from sklearn.metrics import mean_squared_error
+    from sklearn.ensemble import GradientBoostingRegressor
+
     rtr = RandomForestRegressor(n_estimators=2000, n_jobs=-1)
+    #rtr = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=20, max_features=2)
     rtr.fit(age_features_train, age_labels_train)
     predictedAges = rtr.predict(age_df_train.loc[(age_df_train['Age'].isnull())].values[:, 1::])
     age_df_train.loc[age_df_train['Age'].isnull(), 'Age'] = predictedAges
 
-    age_df_test = df_test[['Age', 'Fare_Per_Person', 'Gender', 'FamilySize', 'Title_N', 'Pclass', 'Deck_N', 'TicketNumber', 'Gender*TicketNumberStart']]
     age_features_test = age_df_test.loc[(age_df_test['Age'].notnull())].values[:, 1::]
     age_labels_test = age_df_test.loc[(age_df_test['Age'].notnull())].values[:, 0]
-    rtr = RandomForestRegressor(n_estimators=2000, n_jobs=-1)
     rtr.fit(age_features_test, age_labels_test)
     predictedAges = rtr.predict(age_df_test.loc[(age_df_test['Age'].isnull())].values[:, 1::])
     age_df_test.loc[(age_df_test['Age'].isnull()), 'Age'] = predictedAges
+
+    print 100.0 * (rtr.feature_importances_ / rtr.feature_importances_.max())
 
     #AGE TYPES
 
@@ -198,6 +240,21 @@ def processAge():
     df_test['Age*Class'] = df_test['AgeFullFill'] * df_test.Pclass
     df_test['Age*Cabin'] = df_test['AgeFullFill'] * df_test['Deck_N']
 
+def processDrops():
+    allFeaturesList = ['PassengerId', 'Survived' , 'Pclass', 'Name', 'Sex',
+                   'SibSp', 'Parch', 'Ticket', 'Fare','Cabin',
+                   'Embarked','Title', 'Title_N', 'Deck', 'Deck_N',
+                   'Gender', 'Port_of_Embarkation',	'FamilySize', 'Fare_Per_Person', 'HighLow',
+                   'HighLow*Gender', 'Title*FarePP', 'TicketNumber', 'TicketNumberDigits', 'TicketNumberStart',
+                   'Port_of_Embarkation*TicketNumberStart', 'Gender*TicketNumberStart', 'FamilySize*TicketNumberStart', 'AgeFullFill', 'AgeName',
+                   'AgeName*HighLow', 'AgeFullFill*HighLow', 'Age*Class', 'Age*Cabin', 'FamilySize*Gender']
+
+
+    dropList = ['Name', 'Age', 'Sex', 'Ticket', 'Cabin', 'Embarked', 'Title', 'Deck']
+
+    df_train.drop(dropList, axis=1, inplace=True)
+    df_test.drop(dropList, axis=1, inplace=True)
+
 
 def build_dataframes():
 
@@ -209,7 +266,7 @@ def build_dataframes():
     processFare()
     processTicket()
     processAge()
-
+    processDrops()
 
     return df_train, df_test
 

@@ -1,27 +1,3 @@
-'''
-survival        Survival
-                (0 = No; 1 = Yes)
-pclass          Passenger Class
-                (1 = 1st; 2 = 2nd; 3 = 3rd)
-name            Name
-sex             Sex
-age             Age
-sibsp           Number of Siblings/Spouses Aboard
-parch           Number of Parents/Children Aboard
-ticket          Ticket Number
-fare            Passenger Fare
-cabin           Cabin
-embarked        Port of Embarkation
-                (C = Cherbourg = 1; Q = Queenstown = 2; S = Southampton = 3)
-High socio-economical status -- passenger['Pclass'] is 1
-Medium socio-economical status -- passenger['Pclass'] is 2
-Low socio-economical status -- passenger['Pclass'] is 3
-
-Convert sex male =0, female=1
-Convert  Embarked  (C = Cherbourg = 1; Q = Queenstown = 2; S = Southampton = 3)
-
-'''
-
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
@@ -31,10 +7,7 @@ from dataframe_builder import build_dataframes
 
 df_train, df_test = build_dataframes()
 
-# FEATURES = ['Pclass', 'SibSp', 'Parch', 'Gender', 'Port_of_Embarkation', 'AgeFullFill', 'TicketNumber', 'TicketNumberDigits', 'TicketNumberStart',
-#             'FamilySize', 'Age*Class', 'Deck_N', 'Title_N', 'Fare_Per_Person', 'AgeName', 'HighLow']
-
-FEATURES = ['Pclass', 'Gender', 'AgeFullFill',  'TicketNumber', 'Gender*TicketNumberStart',
+FEATURES = ['Pclass', 'FamilySize*Gender', 'Gender', 'AgeFullFill',  'TicketNumber', 'Gender*TicketNumberStart',
             'Age*Class', 'Deck_N', 'Title_N', 'Fare_Per_Person', 'AgeFullFill*HighLow']
 
 features_train = np.array(df_train[FEATURES].values)
@@ -46,13 +19,7 @@ labels_test = df_test["Survived"]
 data_train = df_train
 data_test = df_test
 
-# features_train, features_test, labels_train, labels_test = train_test_split(features, labels, test_size=0.3,
-#                                                                           random_state=42)
-
-#scale data
-# min_max_scaler = preprocessing.MinMaxScaler()
-# features_train_scaled = min_max_scaler.fit_transform(features_train)
-# features_test_scaled = min_max_scaler.fit_transform(features_test)
+data_train.to_csv("data_train3.tst", "\t")
 
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
@@ -101,8 +68,8 @@ def brute_force_acc_rd(features_train, labels_train, features_test, labels_test,
         print feature_importance
 
 
-    if(acc > 0.81):
-        predictions_file = open("data/canivel_random_forest_81.csv", "wb")
+    if(acc > 0.819):
+        predictions_file = open("data/canivel_random_forest_819.csv", "wb")
         predictions_file_object = csv.writer(predictions_file)
         predictions_file_object.writerow(["PassengerId", "Survived"])
         predictions_file_object.writerows(zip(ids, pred))
