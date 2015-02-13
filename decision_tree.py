@@ -77,25 +77,24 @@ def brute_force_acc_rd(features_train, labels_train, features_test, labels_test,
 
     feature_importance = clf.feature_importances_
 
-    if(acc > 0.815):
+    if(acc > 0.822):
         print acc
         feature_importance = 100.0 * (feature_importance / feature_importance.max())
         print feature_importance
 
 
-    if(acc > 0.83):
+    if(acc > 0.826):
         data_train.to_csv("data_train{}.tst".format(round(acc,5)), "\t")
         predictions_file = open("data/canivel_random_forest_{}.csv".format(round(acc, 5)), "wb")
         predictions_file_object = csv.writer(predictions_file)
         predictions_file_object.writerow(["PassengerId", "Survived"])
         predictions_file_object.writerows(zip(ids, pred))
         predictions_file.close()
-        print ("NEW FILE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! YEA!!!!")
-        exit()
+        print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  NEW FILE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! YEA!!!!")
     return acc
 
 
-while brute_force_acc_rd(features_train, labels_train, features_test, labels_test, ids) < 0.85:
+while brute_force_acc_rd(features_train, labels_train, features_test, labels_test, ids) < 1.0:
     brute_force_acc_rd(features_train, labels_train, features_test, labels_test, ids)
 
 # from sklearn.ensemble import ExtraTreesClassifier
