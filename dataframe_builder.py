@@ -118,9 +118,33 @@ def processFare():
     df_train['Title*FarePP'] = df_train['Title_N'] * df_train['Fare_Per_Person']
     df_test['Title*FarePP'] = df_test['Title_N'] * df_test['Fare_Per_Person']
 
+
+def processTicket():
+
+    df_train['TicketNumber'] = df_train['Ticket'].map(lambda x: getTicketNumber(x))
+    df_train['TicketNumberDigits'] = df_train['TicketNumber'].map(lambda x: len(x)).astype(np.int)
+    df_train['TicketNumberStart'] = df_train['TicketNumber'].map(lambda x: x[0:1]).astype(np.int)
+    df_train['TicketNumber'] = df_train.TicketNumber.astype(np.int)
+
+    df_test['TicketNumber'] = df_test['Ticket'].map(lambda x: getTicketNumber(x))
+    df_test['TicketNumberDigits'] = df_test['TicketNumber'].map(lambda x: len(x)).astype(np.int)
+    df_test['TicketNumberStart'] = df_test['TicketNumber'].map(lambda x: x[0:1]).astype(np.int)
+    df_test['TicketNumber'] = df_test.TicketNumber.astype(np.int)
+
+    #EXTRA FEATURES
+
+    df_train['Port_of_Embarkation*TicketNumberStart'] = df_train['TicketNumberStart'] /  df_train['Port_of_Embarkation']
+    df_test['Port_of_Embarkation*TicketNumberStart'] = df_test['TicketNumberStart'] / df_test['Port_of_Embarkation']
+
+    df_train['Gender*TicketNumberStart'] = df_train['Gender'] / (df_train['TicketNumberStart']+1)
+    df_test['Gender*TicketNumberStart'] = df_test['Gender'] / (df_test['TicketNumberStart']+1)
+
+    df_train['FamilySize*TicketNumberStart'] = df_train['FamilySize'] / (df_train['TicketNumberStart']+1)
+    df_test['FamilySize*TicketNumberStart'] = df_test['FamilySize'] / (df_test['TicketNumberStart']+1)
+
 def processAge():
     #predic ages train
-    age_df_train = df_train[['Age', 'Fare_Per_Person', 'Port_of_Embarkation', 'Gender', 'FamilySize', 'Parch', 'SibSp', 'Title_N', 'Pclass', 'Deck_N']]
+    age_df_train = df_train[['Age', 'Fare_Per_Person', 'Gender', 'FamilySize', 'Title_N', 'Pclass', 'Deck_N', 'TicketNumber', 'Gender*TicketNumberStart']]
     age_features_train = age_df_train.loc[(age_df_train['Age'].notnull())].values[:, 1::]
     age_labels_train = age_df_train.loc[(age_df_train['Age'].notnull())].values[:, 0]
     rtr = RandomForestRegressor(n_estimators=2000, n_jobs=-1)
@@ -128,7 +152,7 @@ def processAge():
     predictedAges = rtr.predict(age_df_train.loc[(age_df_train['Age'].isnull())].values[:, 1::])
     age_df_train.loc[age_df_train['Age'].isnull(), 'Age'] = predictedAges
 
-    age_df_test = df_test[['Age', 'Fare_Per_Person', 'Port_of_Embarkation', 'Gender', 'FamilySize', 'Parch', 'SibSp', 'Title_N', 'Pclass', 'Deck_N']]
+    age_df_test = df_test[['Age', 'Fare_Per_Person', 'Gender', 'FamilySize', 'Title_N', 'Pclass', 'Deck_N', 'TicketNumber', 'Gender*TicketNumberStart']]
     age_features_test = age_df_test.loc[(age_df_test['Age'].notnull())].values[:, 1::]
     age_labels_test = age_df_test.loc[(age_df_test['Age'].notnull())].values[:, 0]
     rtr = RandomForestRegressor(n_estimators=2000, n_jobs=-1)
@@ -174,28 +198,6 @@ def processAge():
     df_test['Age*Class'] = df_test['AgeFullFill'] * df_test.Pclass
     df_test['Age*Cabin'] = df_test['AgeFullFill'] * df_test['Deck_N']
 
-def processTicket():
-
-    df_train['TicketNumber'] = df_train['Ticket'].map(lambda x: getTicketNumber(x))
-    df_train['TicketNumberDigits'] = df_train['TicketNumber'].map(lambda x: len(x)).astype(np.int)
-    df_train['TicketNumberStart'] = df_train['TicketNumber'].map(lambda x: x[0:1]).astype(np.int)
-    df_train['TicketNumber'] = df_train.TicketNumber.astype(np.int)
-
-    df_test['TicketNumber'] = df_test['Ticket'].map(lambda x: getTicketNumber(x))
-    df_test['TicketNumberDigits'] = df_test['TicketNumber'].map(lambda x: len(x)).astype(np.int)
-    df_test['TicketNumberStart'] = df_test['TicketNumber'].map(lambda x: x[0:1]).astype(np.int)
-    df_test['TicketNumber'] = df_test.TicketNumber.astype(np.int)
-
-    #EXTRA FEATURES
-
-    df_train['Port_of_Embarkation*TicketNumberStart'] = df_train['TicketNumberStart'] /  df_train['Port_of_Embarkation']
-    df_test['Port_of_Embarkation*TicketNumberStart'] = df_test['TicketNumberStart'] / df_test['Port_of_Embarkation']
-
-    df_train['Gender*TicketNumberStart'] = df_train['Gender'] / (df_train['TicketNumberStart']+1)
-    df_test['Gender*TicketNumberStart'] = df_test['Gender'] / (df_test['TicketNumberStart']+1)
-
-    df_train['FamilySize*TicketNumberStart'] = df_train['FamilySize'] / (df_train['TicketNumberStart']+1)
-    df_test['FamilySize*TicketNumberStart'] = df_test['FamilySize'] / (df_test['TicketNumberStart']+1)
 
 def build_dataframes():
 
@@ -205,8 +207,9 @@ def build_dataframes():
     processPortsOfEmbarkation()
     processFamily()
     processFare()
-    processAge()
     processTicket()
+    processAge()
+
 
     return df_train, df_test
 
