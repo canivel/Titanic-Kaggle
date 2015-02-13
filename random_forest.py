@@ -113,17 +113,17 @@ df_train['Fare_Per_Person']=df_train['Fare']/(df_train['FamilySize']+1)
 df_test['FamilySize'] = df_test['SibSp'] + df_test['Parch']
 df_test['Fare_Per_Person'] = df_test['Fare']/(df_test['FamilySize']+1)
 
-df_train['Fare_Per_Person'].fillna(1, inplace=True)
-df_test['Fare_Per_Person'].fillna(1, inplace=True)
+df_train['Fare_Per_Person'].fillna(32, inplace=True)#mean 32.2
+df_test['Fare_Per_Person'].fillna(32, inplace=True)#mean 32.2
 
-df_train['Port_of_Embarkation'].fillna(1, inplace=True)
-df_test['Port_of_Embarkation'].fillna(1, inplace=True)
+df_train['Port_of_Embarkation'].fillna(3, inplace=True)#S
+df_test['Port_of_Embarkation'].fillna(3, inplace=True)#S
 
 #predic ages train
 age_df_train = df_train[['Age', 'Fare_Per_Person', 'Port_of_Embarkation', 'Gender', 'FamilySize', 'Parch', 'SibSp', 'Title_N', 'Pclass', 'Deck_N']]
 age_features_train = age_df_train.loc[(age_df_train['Age'].notnull())].values[:, 1::]
 age_labels_train = age_df_train.loc[(age_df_train['Age'].notnull())].values[:, 0]
-rtr = RandomForestRegressor(n_estimators=1000, n_jobs=-1)
+rtr = RandomForestRegressor(n_estimators=2000, n_jobs=-1)
 rtr.fit(age_features_train, age_labels_train)
 predictedAges = rtr.predict(age_df_train.loc[(age_df_train['Age'].isnull())].values[:, 1::])
 age_df_train.loc[age_df_train['Age'].isnull(), 'Age'] = predictedAges
@@ -131,7 +131,7 @@ age_df_train.loc[age_df_train['Age'].isnull(), 'Age'] = predictedAges
 age_df_test = df_test[['Age', 'Fare_Per_Person', 'Port_of_Embarkation', 'Gender', 'FamilySize', 'Parch', 'SibSp', 'Title_N', 'Pclass', 'Deck_N']]
 age_features_test = age_df_test.loc[(age_df_test['Age'].notnull())].values[:, 1::]
 age_labels_test = age_df_test.loc[(age_df_test['Age'].notnull())].values[:, 0]
-rtr = RandomForestRegressor(n_estimators=1000, n_jobs=-1)
+rtr = RandomForestRegressor(n_estimators=2000, n_jobs=-1)
 rtr.fit(age_features_test, age_labels_test)
 predictedAges = rtr.predict(age_df_test.loc[(age_df_test['Age'].isnull())].values[:, 1::])
 age_df_test.loc[(age_df_test['Age'].isnull()), 'Age'] = predictedAges
@@ -143,14 +143,17 @@ age_df_test.loc[(age_df_test['Age'].isnull()), 'Age'] = predictedAges
 # df_test['Age'].dropna()
 df_train['AgeFullFill'] = age_df_train['Age']
 df_train['AgeName'] = ""
-df_train['AgeName'].loc[df_train.AgeFullFill <= 5] = 1
-df_train['AgeName'].loc[(df_train.AgeFullFill > 5) & (df_train.AgeFullFill < 15)] = 3
-df_train['AgeName'].loc[(df_train.AgeFullFill >= 15) & (df_train.AgeFullFill < 60)] = 4
-df_train['AgeName'].loc[df_train.AgeFullFill >= 60] = 2
+df_train['AgeName'].loc[df_train.AgeFullFill < 20] = 1
+df_train['AgeName'].loc[(df_train.AgeFullFill >= 20) & (df_train.AgeFullFill < 45)] = 2
+df_train['AgeName'].loc[df_train.AgeFullFill >= 45] = 3
 
 df_train['HighLow'] = df_train['Pclass']
-df_train['HighLow'].loc[(df_train.Fare_Per_Person < 8)] = 1
-df_train['HighLow'].loc[(df_train.Fare_Per_Person >= 8)] = 2
+df_train['HighLow'].loc[(df_train.Fare_Per_Person < 52)] = 1 # people with fare 52 or less die more
+df_train['HighLow'].loc[(df_train.Fare_Per_Person >= 52)] = 2
+
+df_train['AgeName*HighLow'] = ""
+df_train['AgeName*HighLow'] = df_train['AgeName']/df_train['HighLow']
+df_train['AgeName*HighLow'] = df_train['AgeName']/df_train['HighLow']
 
 
 df_train['Age*Class'] = df_train['AgeFullFill'] * df_train.Pclass
@@ -160,24 +163,28 @@ df_train['Title*FarePP'] = df_train['Title_N'] * df_train['Fare_Per_Person']
 
 df_test['AgeFullFill'] = age_df_test['Age']
 df_test['AgeName'] = ""
-df_test['AgeName'].loc[df_test.AgeFullFill <= 5] = 1
-df_test['AgeName'].loc[(df_test.AgeFullFill > 5) & (df_test.AgeFullFill < 15)] = 3
-df_test['AgeName'].loc[(df_test.AgeFullFill >= 15) & (df_test.AgeFullFill < 60)] = 4
-df_test['AgeName'].loc[df_test.AgeFullFill >= 60] = 2
+df_test['AgeName'].loc[df_test.AgeFullFill < 20] = 1
+df_test['AgeName'].loc[(df_test.AgeFullFill >= 20) & (df_test.AgeFullFill < 45)] = 2
+df_test['AgeName'].loc[df_test.AgeFullFill >= 45] = 3
 
 df_test['HighLow'] = df_test['Pclass']
-df_test['HighLow'].loc[(df_test.Fare_Per_Person < 8)] = 1
-df_test['HighLow'].loc[(df_test.Fare_Per_Person >= 8)] = 2
+df_test['HighLow'].loc[(df_test.Fare_Per_Person < 52)] = 1 # people with fare 52 or less die more
+df_test['HighLow'].loc[(df_test.Fare_Per_Person >= 52)] = 2
+
+df_test['AgeName*HighLow'] = ""
+df_test['AgeName*HighLow'] = df_test['AgeName']/df_test['HighLow']
+df_test['AgeName*HighLow'] = df_test['AgeName']/df_test['HighLow']
 
 df_test['Age*Class'] = df_test['AgeFullFill'] * df_test.Pclass
 df_test['Age*Cabin'] = df_test['AgeFullFill'] * df_test['Deck_N']
 df_test['Title*FarePP'] = df_test['Title_N'] * df_test['Fare_Per_Person']
 
 
-FEATURES = ['Pclass', 'SibSp', 'Parch', 'Gender', 'Port_of_Embarkation', 'AgeFullFill',
-            'FamilySize', 'Age*Class', 'Deck_N', 'Title_N', 'Fare_Per_Person', 'AgeName', 'HighLow']
+# FEATURES = ['Pclass', 'SibSp', 'Parch', 'Gender', 'Port_of_Embarkation', 'AgeFullFill',
+#             'FamilySize', 'Age*Class', 'Deck_N', 'Title_N', 'Fare_Per_Person', 'AgeName', 'HighLow']
 
-#FEATURES = ['Gender', 'AgeFullFill', 'Age*Class', 'Title_N', 'Fare_Per_Person']
+FEATURES = ['Pclass', 'SibSp', 'Gender', 'AgeFullFill',
+            'FamilySize', 'Age*Class', 'Deck_N', 'Title_N', 'Fare_Per_Person', 'HighLow', 'AgeName*HighLow']
 
 features_train = np.array(df_train[FEATURES].values)
 labels_train = df_train["Survived"]
@@ -187,7 +194,6 @@ labels_test = df_test["Survived"]
 
 data_train = df_train
 data_test = df_test
-
 
 # features_train, features_test, labels_train, labels_test = train_test_split(features, labels, test_size=0.3,
 #                                                                           random_state=42)
@@ -218,8 +224,8 @@ ids = df_test['PassengerId'].values
 def brute_force_acc_rd(features_train, labels_train, features_test, labels_test, ids):
 
     clf = RandomForestClassifier(bootstrap=True,
-            criterion='gini', max_depth=None, max_features=2,
-            max_leaf_nodes=8, min_samples_split=10, n_estimators=1000,
+            criterion='entropy', max_depth=None, max_features=2,
+            max_leaf_nodes=16, min_samples_split=10, n_estimators=1000,
             n_jobs=-1, oob_score=False)
 
     clf = clf.fit(features_train, labels_train)
@@ -231,8 +237,10 @@ def brute_force_acc_rd(features_train, labels_train, features_test, labels_test,
     #     print acc
 
     print acc
-    # importances = clf.feature_importances_
-    # print importances
+    feature_importance = clf.feature_importances_
+    if(acc > 0.79):
+        feature_importance = 100.0 * (feature_importance / feature_importance.max())
+        print feature_importance
 
 
     if(acc > 0.85):
