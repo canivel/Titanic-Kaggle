@@ -89,6 +89,8 @@ def processFamily():
     df_train['FamilySize*Gender'] = df_train['FamilySize'] * df_train['Gender']
     df_test['FamilySize*Gender'] = df_test['FamilySize'] * df_test['Gender']
 
+
+
 def processFare():
     df_train['Fare_Per_Person']=df_train['Fare']/(df_train['FamilySize']+1)
     df_test['Fare_Per_Person'] = df_test['Fare']/(df_test['FamilySize']+1)
@@ -120,6 +122,22 @@ def processFare():
 
     df_train['Title*FarePP'] = df_train['Title_N'] * df_train['Fare_Per_Person']
     df_test['Title*FarePP'] = df_test['Title_N'] * df_test['Fare_Per_Person']
+
+    df_train['FamilyType'] = ""
+    df_train['FamilyType'].loc[(df_train['FamilySize'] > 2) & (df_train['HighLow'] == 1)] = 1
+    df_train['FamilyType'].loc[(df_train['FamilySize'] == 2) & (df_train['HighLow'] == 1)] = 2
+    df_train['FamilyType'].loc[(df_train['FamilySize'] <= 1) & (df_train['HighLow'] == 1)] = 3
+    df_train['FamilyType'].loc[(df_train['FamilySize'] > 2) & (df_train['HighLow'] == 2)] = 4
+    df_train['FamilyType'].loc[(df_train['FamilySize'] == 2) & (df_train['HighLow'] == 2)] = 5
+    df_train['FamilyType'].loc[(df_train['FamilySize'] <= 1) & (df_train['HighLow'] == 2)] = 6
+
+    df_test['FamilyType'] = ""
+    df_test['FamilyType'].loc[(df_test['FamilySize'] > 2) & (df_test['HighLow'] == 1)] = 1
+    df_test['FamilyType'].loc[(df_test['FamilySize'] == 2) & (df_test['HighLow'] == 1)] = 2
+    df_test['FamilyType'].loc[(df_test['FamilySize'] <= 1) & (df_test['HighLow'] == 1)] = 3
+    df_test['FamilyType'].loc[(df_test['FamilySize'] > 2) & (df_test['HighLow'] == 2)] = 4
+    df_test['FamilyType'].loc[(df_test['FamilySize'] == 2) & (df_test['HighLow'] == 2)] = 5
+    df_test['FamilyType'].loc[(df_test['FamilySize'] <= 1) & (df_test['HighLow'] == 2)] = 6
 
 
 def processTicket():
@@ -240,6 +258,35 @@ def processAge():
     df_test['Age*Class'] = df_test['AgeFullFill'] * df_test.Pclass
     df_test['Age*Cabin'] = df_test['AgeFullFill'] * df_test['Deck_N']
 
+    df_train['AgeName*Gender'] = ""
+    df_train['AgeName*Gender'].loc[(df_train['AgeName'] == 1) & (df_train['Gender'] == 1)] = 1
+    df_train['AgeName*Gender'].loc[(df_train['AgeName'] == 2) & (df_train['Gender'] == 1)] = 2
+    df_train['AgeName*Gender'].loc[(df_train['AgeName'] == 3) & (df_train['Gender'] == 1)] = 3
+    df_train['AgeName*Gender'].loc[(df_train['AgeName'] == 1) & (df_train['Gender'] == 2)] = 4
+    df_train['AgeName*Gender'].loc[(df_train['AgeName'] == 2) & (df_train['Gender'] == 2)] = 5
+    df_train['AgeName*Gender'].loc[(df_train['AgeName'] == 3) & (df_train['Gender'] == 2)] = 6
+
+    df_test['AgeName*Gender'] = ""
+    df_test['AgeName*Gender'].loc[(df_test['AgeName'] == 1) & (df_test['Gender'] == 1)] = 1
+    df_test['AgeName*Gender'].loc[(df_test['AgeName'] == 2) & (df_test['Gender'] == 1)] = 2
+    df_test['AgeName*Gender'].loc[(df_test['AgeName'] == 3) & (df_test['Gender'] == 1)] = 3
+    df_test['AgeName*Gender'].loc[(df_test['AgeName'] == 1) & (df_test['Gender'] == 2)] = 4
+    df_test['AgeName*Gender'].loc[(df_test['AgeName'] == 2) & (df_test['Gender'] == 2)] = 5
+    df_test['AgeName*Gender'].loc[(df_test['AgeName'] == 3) & (df_test['Gender'] == 2)] = 6
+
+
+    df_train['AgeName*Gender*HighLow'] = ""
+    df_train['AgeName*Gender*HighLow'].loc[(df_train['AgeName*Gender'] <= 3) & (df_train['HighLow'] == 1)] = 1 #poor
+    df_train['AgeName*Gender*HighLow'].loc[(df_train['AgeName*Gender'] > 3) & (df_train['HighLow'] == 1)] = 2 #poor
+    df_train['AgeName*Gender*HighLow'].loc[(df_train['AgeName*Gender'] <= 3) & (df_train['HighLow'] == 2)] = 1
+    df_train['AgeName*Gender*HighLow'].loc[(df_train['AgeName*Gender'] > 3) & (df_train['HighLow'] == 2)] = 2
+
+    df_test['AgeName*Gender*HighLow'] = ""
+    df_test['AgeName*Gender*HighLow'].loc[(df_test['AgeName*Gender'] <= 3) & (df_test['HighLow'] == 1)] = 1
+    df_test['AgeName*Gender*HighLow'].loc[(df_test['AgeName*Gender'] > 3) & (df_test['HighLow'] == 1)] = 2
+    df_test['AgeName*Gender*HighLow'].loc[(df_test['AgeName*Gender'] <= 3) & (df_test['HighLow'] == 2)] = 1
+    df_test['AgeName*Gender*HighLow'].loc[(df_test['AgeName*Gender'] > 3) & (df_test['HighLow'] == 2)] = 2
+
 def processDrops():
     allFeaturesList = ['PassengerId', 'Survived' , 'Pclass', 'Name', 'Sex',
                    'SibSp', 'Parch', 'Ticket', 'Fare','Cabin',
@@ -247,7 +294,8 @@ def processDrops():
                    'Gender', 'Port_of_Embarkation',	'FamilySize', 'Fare_Per_Person', 'HighLow',
                    'HighLow*Gender', 'Title*FarePP', 'TicketNumber', 'TicketNumberDigits', 'TicketNumberStart',
                    'Port_of_Embarkation*TicketNumberStart', 'Gender*TicketNumberStart', 'FamilySize*TicketNumberStart', 'AgeFullFill', 'AgeName',
-                   'AgeName*HighLow', 'AgeFullFill*HighLow', 'Age*Class', 'Age*Cabin', 'FamilySize*Gender']
+                   'AgeName*HighLow', 'AgeFullFill*HighLow', 'Age*Class', 'Age*Cabin', 'FamilySize*Gender',
+                   'AgeName*Gender', 'AgeName*Gender*HighLow', 'FamilyType']
 
 
     dropList = ['Name', 'Age', 'Sex', 'Ticket', 'Cabin', 'Embarked', 'Title', 'Deck']

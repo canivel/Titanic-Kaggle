@@ -5,10 +5,12 @@ import csv as csv
 from dataframe_builder import build_dataframes
 
 
+
 df_train, df_test = build_dataframes()
 
+#0.818181818182
 FEATURES = ['Pclass', 'FamilySize*Gender', 'Gender', 'AgeFullFill',  'TicketNumber', 'Gender*TicketNumberStart',
-            'Age*Class', 'Deck_N', 'Title_N', 'Fare_Per_Person', 'AgeFullFill*HighLow']
+            'Age*Class', 'Deck_N', 'Title_N', 'Fare_Per_Person', 'AgeFullFill*HighLow', 'FamilyType']
 
 features_train = np.array(df_train[FEATURES].values)
 labels_train = df_train["Survived"]
@@ -18,9 +20,9 @@ labels_test = df_test["Survived"]
 
 data_train = df_train
 data_test = df_test
-
-data_train.to_csv("data_train3.tst", "\t")
-
+#
+# data_train.to_csv("data_train.tst", "\t")
+# exit()
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 features_train = scaler.fit_transform(features_train)
@@ -43,11 +45,11 @@ features_test = scaler.fit_transform(features_test)
 #             n_jobs=-1, oob_score=False)
 
 
-
 ids = df_test['PassengerId'].values
 
 def brute_force_acc_rd(features_train, labels_train, features_test, labels_test, ids):
 
+    #0.818181818182
     clf = RandomForestClassifier(bootstrap=True,
             criterion='entropy', max_depth=None, max_features=2,
             max_leaf_nodes=16, min_samples_split=10, n_estimators=1000,
@@ -63,7 +65,10 @@ def brute_force_acc_rd(features_train, labels_train, features_test, labels_test,
 
     print acc
     feature_importance = clf.feature_importances_
-    if(acc > 0.81):
+    # feature_importance = 100.0 * (feature_importance / feature_importance.max())
+    # print feature_importance
+    if(acc > 0.815):
+        data_train.to_csv("data_train{}.tst".format(round(acc,5)), "\t")
         feature_importance = 100.0 * (feature_importance / feature_importance.max())
         print feature_importance
 
