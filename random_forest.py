@@ -4,7 +4,7 @@ from sklearn.metrics import accuracy_score
 import csv as csv
 from dataframe_builder import build_dataframes
 
-
+import time
 
 df_train, df_test = build_dataframes()
 
@@ -46,7 +46,6 @@ features_test = scaler.fit_transform(features_test)
 
 
 ids = df_test['PassengerId'].values
-
 def brute_force_acc_rd(features_train, labels_train, features_test, labels_test, ids):
 
     #0.818181818182
@@ -62,7 +61,7 @@ def brute_force_acc_rd(features_train, labels_train, features_test, labels_test,
     #print pred
     # if(acc > 0.80):
     #     print acc
-
+    t0 = time.time()
     print acc
     feature_importance = clf.feature_importances_
     # feature_importance = 100.0 * (feature_importance / feature_importance.max())
@@ -71,7 +70,6 @@ def brute_force_acc_rd(features_train, labels_train, features_test, labels_test,
         data_train.to_csv("data_train{}.tst".format(round(acc,5)), "\t")
         feature_importance = 100.0 * (feature_importance / feature_importance.max())
         print feature_importance
-
 
     if(acc > 0.819):
         predictions_file = open("data/canivel_random_forest_819.csv", "wb")

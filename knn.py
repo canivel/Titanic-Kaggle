@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 import csv as csv
 from dataframe_builder import build_dataframes
@@ -30,32 +30,24 @@ ids = df_test['PassengerId'].values
 
 def brute_force_acc_rd(features_train, labels_train, features_test, labels_test, ids):
 
-
-    #0.832535885167
-    clf = DecisionTreeClassifier(criterion='gini',
-                                 min_samples_split=10,
-                                 max_depth=10,
-                                 max_leaf_nodes=16,
-                                 max_features=2)
-
+    clf = KNeighborsClassifier(
+        n_neighbors=100,
+        )
 
     clf = clf.fit(features_train, labels_train)
     # print(clf.best_estimator_)
     pred = clf.predict(features_test)
     acc = accuracy_score(labels_test, pred)
     #print pred
+    print acc
 
-    feature_importance = clf.feature_importances_
-
-    if(acc > 0.83):
+    if(acc > 0.8):
         print ("Acc: {} ").format(acc)
-        # feature_importance = 100.0 * (feature_importance / feature_importance.max())
-        # print feature_importance
 
 
-    if(acc > 0.833):
+    if(acc > 0.831):
         data_train.to_csv("data_train{}.tst".format(round(acc,5)), "\t")
-        predictions_file = open("data/canivel_decision_tree_{}.csv".format(round(acc, 5)), "wb")
+        predictions_file = open("data/canivel_knn_{}.csv".format(round(acc, 5)), "wb")
         predictions_file_object = csv.writer(predictions_file)
         predictions_file_object.writerow(["PassengerId", "Survived"])
         predictions_file_object.writerows(zip(ids, pred))
@@ -67,20 +59,22 @@ def brute_force_acc_rd(features_train, labels_train, features_test, labels_test,
 while brute_force_acc_rd(features_train, labels_train, features_test, labels_test, ids) < 1.0:
     brute_force_acc_rd(features_train, labels_train, features_test, labels_test, ids)
 
+
 # if __name__ == "__main__":
 #
 #     #GRIDSEARCH
+#     # SVC(C=100, cache_size=200, class_weight=None, coef0=0.0, degree=3, gamma=0.01,
+#     #     kernel='rbf', max_iter=-1, probability=False, random_state=None,
+#     #     shrinking=True, tol=0.001, verbose=False)
 #     from sklearn.grid_search import GridSearchCV
 #     from sklearn.cross_validation import train_test_split
 #     print "Decision Tree"
-#     param_grid = {'criterion': ('gini', 'entropy'),
-#                   'splitter': ('best', 'random'),
-#                   'min_samples_split': [4, 5, 10, 20],
-#                   'max_features': (2, 5, 'auto', 'sqrt', 'log2', None),
-#                   'max_depth': [None, 10, 50],
-#                   'max_leaf_nodes': [None, 8, 16]}
-#     clf = GridSearchCV(DecisionTreeClassifier(), param_grid,
-#                        verbose = 3, scoring = "accuracy", n_jobs = -1, cv =2)
+#     param_grid = [
+#         {'C': [1, 10, 100, 1000], 'kernel': ['linear']},
+#         {'C': [1, 10, 100, 1000], 'gamma': [0.01, 0.0001], 'kernel': ['rbf']},
+#         ]
+#     clf = GridSearchCV(SVC(), param_grid,
+#                        verbose = 3, scoring = "accuracy", n_jobs = -1, cv =10)
 #
 #     clf = clf.fit(features_train, labels_train)
 #     print(clf.best_estimator_)
